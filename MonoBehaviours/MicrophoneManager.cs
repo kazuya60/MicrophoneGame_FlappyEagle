@@ -7,7 +7,7 @@ using UnityEngine.PlayerLoop;
 public class MicrophoneManager : MonoBehaviour
 {
     public static MicrophoneManager Instance{get;private set;}
-    private AudioClip microphoneClip;
+    [SerializeField]private AudioClip microphoneClip;
     private string selectedDevice;
 
     void Awake()
@@ -32,6 +32,8 @@ public class MicrophoneManager : MonoBehaviour
             Debug.LogError("No Microphones Detected!");
             return;
         }
+        string[] availableDevices = Microphone.devices;
+        Debug.Log($"Available Devices: {string.Join(", ", availableDevices)}");
 
         selectedDevice = Microphone.devices[0];
         Debug.Log("Started using: " + selectedDevice);

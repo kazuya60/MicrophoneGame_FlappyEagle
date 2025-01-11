@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,10 +21,37 @@ public class CanvasScripts : MonoBehaviour
     void Start()
     {
         mainAudioInputController = GameObject.FindObjectOfType<MainAudioInputController>();
-        
+
         slider.minValue = 0.001f;
         slider.maxValue = 0.01f;
         slider.value /= 2;
+    }
+    void OnEnable()
+    {
+        Debug.Log("Onenable was called");
+        StartCoroutine(WaitForMainAudioInputController());
+    }
+
+    void OnDisable()
+    {
+        Debug.Log("OnDisable was called");
+        if (mainAudioInputController != null)
+        {
+            Debug.Log("Ondisable was called inside the null check");
+            mainAudioInputController.OnNewMicrophoneConnected -= PauseGame;
+        }
+    }
+
+    IEnumerator WaitForMainAudioInputController()
+    {
+        while (mainAudioInputController == null)
+        {
+            yield return null;
+        }
+        if (mainAudioInputController != null)
+        {
+            mainAudioInputController.OnNewMicrophoneConnected += PauseGame;
+        }
     }
     void Update()
     {
@@ -31,7 +59,14 @@ public class CanvasScripts : MonoBehaviour
         {
             mainGamePanel.SetActive(false);
             gameOverPanel.SetActive(true);
+            return;
         }
+    }
+
+    public void PauseWindowAppear()
+    {
+        isPaused = true;
+        pausePanel.SetActive(true);
     }
     public void PauseGame()
     {
@@ -40,8 +75,6 @@ public class CanvasScripts : MonoBehaviour
             Time.timeScale = 1f;
             isPaused = false;
             pausePanel.SetActive(false);
-            pauseButton.SetActive(true);
-            resumeButton.SetActive(false);
             mainGamePanel.SetActive(true);
             return;
         }
@@ -50,8 +83,6 @@ public class CanvasScripts : MonoBehaviour
         Time.timeScale = 0;
         isPaused = true;
         pausePanel.SetActive(true);
-        pauseButton.SetActive(false);
-        resumeButton.SetActive(true);
         mainGamePanel.SetActive(false);
     }
 
